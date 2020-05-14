@@ -1,0 +1,107 @@
+------- FILE KONEKSI --------
+
+---- koneksi.php ----
+<?php
+ //Mendefinisikan Konstanta
+ define('HOST','localhost');
+ define('USER','root');
+ define('PASS','');
+ define('DB','db_android');
+ //membuat koneksi dengan database
+$con = mysqli_connect(HOST,USER,PASS,DB) or die('Unable to Connect');
+?>
+
+---- insert.php ----
+<?php 
+if($_SERVER['REQUEST_METHOD']=='POST'){
+           //Mendapatkan Nilai Variable
+           $nama = $_POST['nama'];
+           $jurusan = $_POST['jurusan'];
+           $email = $_POST['email'];
+           //Pembuatan Syntax SQL
+$sql = "INSERT INTO mahasiswa (nama,jurusan,email) VALUES ('$nama','$jurusan','$email')";
+           //Import File Koneksi database
+           require_once('koneksi.php');
+           //Eksekusi Query database
+           if(mysqli_query($con,$sql)){
+echo 'Berhasil Menambahkan Mahasiswa'; }else{
+echo 'Gagal Menambahkan Mahasiswa'; }
+           mysqli_close($con);
+     }
+?>
+
+---- read.php ----
+<?php
+     //Import File Koneksi Database
+     require_once('koneksi.php');
+     //Membuat SQL Query
+     $sql = "SELECT * FROM mahasiswa";
+     //Mendapatkan Hasil
+     $r = mysqli_query($con,$sql);
+     //Membuat Array Kosong
+     $result = array();
+while($row = mysqli_fetch_array($r)){
+//Memasukkan Nama dan ID kedalam Array Kosong yang telah dibuat
+           array_push($result,array(
+                 "id"=>$row['id'],
+                 "nama"=>$row['nama']
+           ));
+}
+//Menampilkan Array dalam Format JSON
+echo json_encode(array('result'=>$result));
+     mysqli_close($con);
+    ?>
+    
+---- update.php ----
+<?php 
+if($_SERVER['REQUEST_METHOD']=='POST'){
+//Mendapatkan Nilai Dari Variable $id = $_POST['id'];
+$nama = $_POST['nama'];
+$jurusan = $_POST['jurusan']; $email = $_POST['email'];
+       //import file koneksi database
+       require_once('koneksi.php');
+       //Membuat SQL Query
+$sql = "UPDATE mahasiswa SET nama = '$nama', jurusan = '$jurusan', email = '$email' WHERE id = $id;";
+//Meng-update Database if(mysqli_query($con,$sql)){
+echo 'Berhasil Update Data Mahasiswa'; }else{
+echo 'Gagal Update Data Mahasiswa'; }
+       mysqli_close($con);
+ }
+?>
+
+---- delete.php ----
+<?php
+//Mendapatkan Nilai ID
+ $id = $_GET['id'];
+ //Import File Koneksi Database
+ require_once('koneksi.php');
+//Membuat SQL Query
+$sql = "DELETE FROM mahasiswa WHERE id=$id;";
+//Menghapus Nilai pada Database if(mysqli_query($con,$sql)){
+echo 'Berhasil Menghapus Mahasiswa'; }else{
+echo 'Gagal Menghapus Mahasiswa';
+}
+mysqli_close($con);
+?>
+
+---- select.php ----
+<?php
+//Mendapatkan Nilai Dari Variable ID Pegawai yang ingin ditampilkan
+ $id = $_GET['id'];
+ //Importing database
+ require_once('koneksi.php');
+//Membuat SQL Query dengan pegawai yang ditentukan secara spesifik sesuai ID
+$sql = "SELECT * FROM mahasiswa WHERE id=$id";
+ //Mendapatkan Hasil
+ $r = mysqli_query($con,$sql);
+//Memasukkan Hasil Kedalam Array $result = array();
+$row = mysqli_fetch_array($r); array_push($result,array(
+             "id"=>$row['id'],
+             "nama"=>$row['nama'],
+             "jurusan"=>$row['jurusan'],
+             "email"=>$row['email']
+));
+//Menampilkan dalam format JSON
+echo json_encode(array('result'=>$result));
+ mysqli_close($con);
+?>
